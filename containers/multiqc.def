@@ -1,0 +1,19 @@
+Bootstrap: docker
+From: condaforge/miniforge3:latest
+
+%labels
+    Author OpusTaxa
+    Tool multiqc
+    Version 1.33
+
+%post
+    apt-get update && apt-get install -y procps && apt-get clean -y
+    mamba install -y -c conda-forge -c bioconda \
+        multiqc=1.33
+    mamba clean -a -y
+
+%environment
+    export PATH=/opt/conda/bin:$PATH
+
+%runscript
+    exec "$@"

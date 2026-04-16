@@ -1,0 +1,447 @@
+name: Build and Push Singularity Images
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - '**'
+
+jobs:
+  check-for-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      img_antismash_changed: ${{ steps.filter.outputs.img_antismash }}
+      img_fastp_changed: ${{ steps.filter.outputs.img_fastp }}
+      img_fastqc_changed: ${{ steps.filter.outputs.img_fastqc }}
+      img_humann_changed: ${{ steps.filter.outputs.img_humann }}
+      img_metaphlan_changed: ${{ steps.filter.outputs.img_metaphlan }}
+      img_metaspades_changed: ${{ steps.filter.outputs.img_metaspades }}
+      img_mlp_changed: ${{ steps.filter.outputs.img_mlp }}
+      img_mmultiqc_changed: ${{ steps.filter.outputs.img_multiqc }}
+      img_nohuman_changed: ${{ steps.filter.outputs.img_nohuman }}
+      img_rgi_changed: ${{ steps.filter.outputs.img_rgi }}
+      img_singlem_changed: ${{ steps.filter.outputs.img_singlem }}
+      img_sra_changed: ${{ steps.filter.outputs.img_sra }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get latest tag
+        id: get_tag
+        run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+      - name: Check for changes in container recipes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          base: ${{ env.LAST_TAG }}
+          filters: |
+            img_antismash:
+              - 'containers/antismash.def'
+            img_fastp:
+              - 'containers/fastp.def'
+            img_fastqc:
+              - 'containers/fastqc.def'
+            img_humann:
+              - 'containers/humann.def'
+            img_kraken2:
+              - 'containers/kraken2.def'
+            img_metaphlan:
+              - 'containers/metaphlan.def'
+            img_metaspades:
+              - 'containers/metaspades.def'
+            img_mlp:
+              - 'containers/mlp.def'
+            img_multiqc:
+              - 'containers/multiqc.def'
+            img_nohuman:
+              - 'containers/nohuman.def'
+            img_rgi:
+              - 'containers/rgi.def'
+            img_singlem:
+              - 'containers/singlem.def'
+            img_sra:
+              - 'containers/sra.def'
+
+
+  build-opustaxa_antismash:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_antismash_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_antismash
+          run: |
+            apptainer build opustaxa_antismash.sif containers/antismash.def
+        - name: Push opustaxa_antismash to Quay.io
+          run: |
+            apptainer push opustaxa_antismash.sif oras://quay.io/yenkai_chen_id/opustaxa_antismash:${{ env.LAST_TAG }}
+
+  build-opustaxa_fastp:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_fastp_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_fastp
+          run: |
+            apptainer build opustaxa_fastp.sif containers/fastp.def
+        - name: Push opustaxa_fastp to Quay.io
+          run: |
+            apptainer push opustaxa_fastp.sif oras://quay.io/yenkai_chen_id/opustaxa_fastp:${{ env.LAST_TAG }}
+
+  build-opustaxa_fastqc:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_fastqc_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_fastqc
+          run: |
+            apptainer build opustaxa_fastqc.sif containers/fastqc.def
+        - name: Push opustaxa_ to Quay.io
+          run: |
+            apptainer push opustaxa_fastqc.sif oras://quay.io/yenkai_chen_id/opustaxa_fastqc:${{ env.LAST_TAG }}
+
+  build-opustaxa_humann:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_humann_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_humann
+          run: |
+            apptainer build opustaxa_humann.sif containers/humann.def
+        - name: Push opustaxa_humann to Quay.io
+          run: |
+            apptainer push opustaxa_humann.sif oras://quay.io/yenkai_chen_id/opustaxa_humann:${{ env.LAST_TAG }}
+
+  build-opustaxa_kraken2:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_kraken2_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_kraken2
+          run: |
+            apptainer build opustaxa_kraken2.sif containers/kraken2.def
+        - name: Push opustaxa_ to Quay.io
+          run: |
+            apptainer push opustaxa_kraken2.sif oras://quay.io/yenkai_chen_id/opustaxa_kraken2:${{ env.LAST_TAG }}
+
+  build-opustaxa_metaphlan:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_metaphlan_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_metaphlan
+          run: |
+            apptainer build opustaxa_metaphlan.sif containers/metaphlan.def
+        - name: Push opustaxa_metaphlan to Quay.io
+          run: |
+            apptainer push opustaxa_metaphlan.sif oras://quay.io/yenkai_chen_id/opustaxa_metaphlan:${{ env.LAST_TAG }}
+
+  build-opustaxa_metaspades:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_metaspades_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_metaspades
+          run: |
+            apptainer build opustaxa_metaspades.sif containers/metaspades.def
+        - name: Push opustaxa_metaspades to Quay.io
+          run: |
+            apptainer push opustaxa_metaspades.sif oras://quay.io/yenkai_chen_id/opustaxa_metaspades:${{ env.LAST_TAG }}
+
+  build-opustaxa_mlp:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_mlp_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_mlp
+          run: |
+            apptainer build opustaxa_mlp.sif containers/mlp.def
+        - name: Push opustaxa_mlp to Quay.io
+          run: |
+            apptainer push opustaxa_mlp.sif oras://quay.io/yenkai_chen_id/opustaxa_mlp:${{ env.LAST_TAG }}
+
+  build-opustaxa_multiqc:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_multiqc_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_multiqc
+          run: |
+            apptainer build opustaxa_multiqc.sif containers/multiqc.def
+        - name: Push opustaxa_multiqc to Quay.io
+          run: |
+            apptainer push opustaxa_multiqc.sif oras://quay.io/yenkai_chen_id/opustaxa_multiqc:${{ env.LAST_TAG }}
+
+  build-opustaxa_nohuman:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_nohuman_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_nohuman
+          run: |
+            apptainer build opustaxa_nohuman.sif containers/nohuman.def
+        - name: Push opustaxa_nohuman to Quay.io
+          run: |
+            apptainer push opustaxa_nohuman.sif oras://quay.io/yenkai_chen_id/opustaxa_nohuman:${{ env.LAST_TAG }}
+
+  build-opustaxa_rgi:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_rgi_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_rgi
+          run: |
+            apptainer build opustaxa_rgi.sif containers/rgi.def
+        - name: Push opustaxa_rgi to Quay.io
+          run: |
+            apptainer push opustaxa_rgi.sif oras://quay.io/yenkai_chen_id/opustaxa_rgi:${{ env.LAST_TAG }}
+
+  build-opustaxa_singlem:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_singlem_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_singlem
+          run: |
+            apptainer build opustaxa_singlem.sif containers/singlem.def
+        - name: Push opustaxa_singlem to Quay.io
+          run: |
+            apptainer push opustaxa_singlem.sif oras://quay.io/yenkai_chen_id/opustaxa_singlem:${{ env.LAST_TAG }}
+
+  build-opustaxa_sra:
+      needs: check-for-changes
+      if: needs.check-for-changes.outputs.img_sra_changed == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+        - name: Install Apptainer
+          run: |
+            sudo apt update
+            sudo apt install -y software-properties-common
+            sudo add-apt-repository -y ppa:apptainer/ppa
+            sudo apt update
+            sudo apt install -y apptainer
+        - name: Get latest tag
+          id: get_tag
+          run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        - name: Log in to Quay.io
+          run: |
+            echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+        - name: Build opustaxa_sra
+          run: |
+            apptainer build opustaxa_sra.sif containers/sra.def
+        - name: Push opustaxa_sra to Quay.io
+          run: |
+            apptainer push opustaxa_sra.sif oras://quay.io/yenkai_chen_id/opustaxa_sra:${{ env.LAST_TAG }}
+
