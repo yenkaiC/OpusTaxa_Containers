@@ -18,10 +18,11 @@ jobs:
       img_fastp_changed: ${{ steps.filter.outputs.img_fastp }}
       img_fastqc_changed: ${{ steps.filter.outputs.img_fastqc }}
       img_humann_changed: ${{ steps.filter.outputs.img_humann }}
+      img_kraken2_changed: ${{ steps.filter.outputs.img_kraken2 }}
       img_metaphlan_changed: ${{ steps.filter.outputs.img_metaphlan }}
       img_metaspades_changed: ${{ steps.filter.outputs.img_metaspades }}
       img_mlp_changed: ${{ steps.filter.outputs.img_mlp }}
-      img_mmultiqc_changed: ${{ steps.filter.outputs.img_multiqc }}
+      img_multiqc_changed: ${{ steps.filter.outputs.img_multiqc }}
       img_nohuman_changed: ${{ steps.filter.outputs.img_nohuman }}
       img_rgi_changed: ${{ steps.filter.outputs.img_rgi }}
       img_singlem_changed: ${{ steps.filter.outputs.img_singlem }}
