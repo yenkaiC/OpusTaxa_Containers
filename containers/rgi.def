@@ -5,6 +5,7 @@ From: condaforge/miniforge3:latest
     Author OpusTaxa
     Tool rgi
     Version 6.0.5
+    GitHub "github.com/yenkaiC/OpusTaxa_Containers"
 
 %post
     apt-get update && apt-get install -y procps wget && apt-get clean -y

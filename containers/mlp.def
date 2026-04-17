@@ -5,6 +5,7 @@ From: condaforge/miniforge3:latest
     Author OpusTaxa
     Tool mlp
     Description Microbial Load Predictor (R package)
+    GitHub "github.com/yenkaiC/OpusTaxa_Containers"
 
 %post
     apt-get update && apt-get install -y procps libcurl4-openssl-dev libssl-dev libxml2-dev && apt-get clean -y

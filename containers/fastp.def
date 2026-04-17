@@ -5,6 +5,7 @@ From: condaforge/miniforge3:latest
     Author OpusTaxa
     Tool fastp
     Version 1.1.0
+    GitHub "github.com/yenkaiC/OpusTaxa_Containers"
 
 %post
     apt-get update && apt-get install -y procps && apt-get clean -y

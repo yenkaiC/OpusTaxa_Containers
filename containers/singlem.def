@@ -5,6 +5,7 @@ From: condaforge/miniforge3:latest
     Author OpusTaxa
     Tool singlem
     Version 0.20.3
+    GitHub "github.com/yenkaiC/OpusTaxa_Containers"
 
 %post
     apt-get update && apt-get install -y procps && apt-get clean -y
