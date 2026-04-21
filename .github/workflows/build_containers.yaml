@@ -27,6 +27,7 @@ jobs:
       img_rgi_changed: ${{ steps.filter.outputs.img_rgi }}
       img_singlem_changed: ${{ steps.filter.outputs.img_singlem }}
       img_sra_changed: ${{ steps.filter.outputs.img_sra }}
+      img_prodigal_gv_changed: ${{ steps.filter.outputs.img_prodigal_gv }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -67,6 +68,8 @@ jobs:
               - 'containers/singlem.def'
             img_sra:
               - 'containers/sra.def'
+            img_prodigal_gv:
+              - 'containers/prodigal-gv.def'
 
 
   build-opustaxa_antismash:
@@ -446,3 +449,31 @@ jobs:
           run: |
             apptainer push opustaxa_sra.sif oras://quay.io/yenkai_chen_id/opustaxa_sra:${{ env.LAST_TAG }}
 
+build-opustaxa_prodigal_gv:
+    needs: check-for-changes
+    if: needs.check-for-changes.outputs.img_prodigal_gv_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Apptainer
+        run: |
+          sudo apt update
+          sudo apt install -y software-properties-common
+          sudo add-apt-repository -y ppa:apptainer/ppa
+          sudo apt update
+          sudo apt install -y apptainer
+      - name: Get latest tag
+        id: get_tag
+        run: echo "LAST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+      - name: Log in to Quay.io
+        run: |
+          echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
+      - name: Build opustaxa_prodigal_gv
+        run: |
+          apptainer build opustaxa_prodigal_gv.sif containers/prodigal-gv.def
+      - name: Push opustaxa_prodigal_gv to Quay.io
+        run: |
+          apptainer push opustaxa_prodigal_gv.sif oras://quay.io/yenkai_chen_id/opustaxa_prodigal_gv:${{ env.LAST_TAG }}
