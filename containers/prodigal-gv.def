@@ -5,6 +5,7 @@ From: condaforge/miniforge3:latest
     Author OpusTaxa
     Tool prodigal-gv
     Version 2.11.0
+    Build 1
 
 %post
     apt-get update && apt-get install -y procps && apt-get clean -y
