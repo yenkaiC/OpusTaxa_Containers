@@ -12,10 +12,12 @@ From: condaforge/miniforge3:latest
         python=3.12 \
         antismash=8.0.4
 
-    # Press the bundled detection HMMs (bgc_seeds.hmm etc.) into the package
-    # data dir NOW, while the image filesystem is still writable. At runtime the
-    # .sif is read-only, so this in-package preparation must happen at build time.
-    antismash --prepare-data
+    # Prepare the bundled detection HMMs (bgc_seeds.hmm etc.) in-place NOW,
+    # while the image filesystem is writable. Uses the official antiSMASH
+    # Dockerfile approach: a placeholder --databases value so config can be
+    # built without the large downloadable databases present. Those are still
+    # fetched at runtime via download-antismash-databases --database-dir.
+    python3 -c "import antismash; antismash.config.build_config(['--databases', 'mounted_at_runtime'], modules=antismash.get_all_modules()); antismash.main.prepare_module_data()"
 
     mamba clean -a -y
 
