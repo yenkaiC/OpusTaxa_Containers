@@ -100,17 +100,6 @@ jobs:
         - name: Log in to Quay.io
           run: |
             echo "${{ secrets.QUAY_PASSWORD }}" | apptainer remote login --username "${{ secrets.QUAY_USERNAME }}" oras://quay.io
-        - name: Free up disk space          # <-- NEW STEP
-          run: |
-            echo "Before:"
-            df -h /
-            sudo rm -rf /usr/share/dotnet
-            sudo rm -rf /usr/local/lib/android
-            sudo rm -rf /opt/ghc
-            sudo rm -rf /opt/hostedtoolcache/CodeQL
-            sudo docker image prune --all --force || true
-            echo "After:"
-            df -h /
         - name: Build opustaxa_antismash
           run: |
             apptainer build opustaxa_antismash.sif containers/antismash.def
