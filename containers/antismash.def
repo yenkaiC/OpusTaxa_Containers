@@ -5,13 +5,18 @@ From: condaforge/miniforge3:latest
     Author OpusTaxa
     Tool antismash
     Version 8.0.4
-    GitHub "github.com/yenkaiC/OpusTaxa_Containers"
 
 %post
     apt-get update && apt-get install -y procps && apt-get clean -y
     mamba install -y -c conda-forge -c bioconda \
         python=3.12 \
         antismash=8.0.4
+
+    # Press the bundled detection HMMs (bgc_seeds.hmm etc.) into the package
+    # data dir NOW, while the image filesystem is still writable. At runtime the
+    # .sif is read-only, so this in-package preparation must happen at build time.
+    antismash --prepare-data
+
     mamba clean -a -y
 
 %environment
