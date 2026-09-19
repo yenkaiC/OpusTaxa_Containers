@@ -8,12 +8,11 @@ From: condaforge/miniforge3:latest
 
 %post
     apt-get update && apt-get install -y procps && apt-get clean -y
-    mamba clean -a -y || true
-    mamba install -y -c conda-forge -c bioconda \
+    conda install -y -c conda-forge -c bioconda \
         python=3.12 \
         antismash=8.0.4
     python3 -c "import antismash; antismash.config.build_config(['--databases', 'mounted_at_runtime'], modules=antismash.get_all_modules()); antismash.main.prepare_module_data()"
-    mamba clean -a -y
+    conda clean -a -y
 
 %environment
     export PATH=/opt/conda/bin:$PATH
